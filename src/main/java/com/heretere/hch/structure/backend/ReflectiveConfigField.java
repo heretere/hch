@@ -80,12 +80,6 @@ public final class ReflectiveConfigField<T> extends ConfigSection implements Con
 
         /* Primitives are not supported. */
         Preconditions.checkState(!type.isPrimitive(), "Primitive types are not allowed. Invalid Key (%s).", key);
-        Preconditions.checkState(
-            List.class.isAssignableFrom(type) && !ConfigList.class.isAssignableFrom(type),
-            "Generic Collections are not supported, please use '%s' for a collection. Invalid Key (%s).",
-            ConfigList.class,
-            key
-        );
 
         this.type = type;
         this.instance = new WeakReference<>(instance);
