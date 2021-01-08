@@ -35,7 +35,6 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,8 +81,8 @@ public final class ReflectiveConfigField<T> extends ConfigSection implements Con
         /* Primitives are not supported. */
         Preconditions.checkState(!type.isPrimitive(), "Primitive types are not allowed. Invalid Key (%s).", key);
         Preconditions.checkState(
-            Collection.class.isAssignableFrom(type) && !ConfigList.class.isAssignableFrom(type),
-            "Generic Collections are supported, please use '%s' for a collection. Invalid Key (%s).",
+            List.class.isAssignableFrom(type) && !ConfigList.class.isAssignableFrom(type),
+            "Generic Collections are not supported, please use '%s' for a collection. Invalid Key (%s).",
             ConfigList.class,
             key
         );
