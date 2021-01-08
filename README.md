@@ -1,8 +1,19 @@
 # Heretere's Config Handler
 
-![JitPack](https://img.shields.io/jitpack/v/github/heretere/hch?style=for-the-badge)
-![Lines of code](https://img.shields.io/tokei/lines/github/heretere/hch?style=for-the-badge)
-![Size](https://img.shields.io/github/languages/code-size/heretere/hch?style=for-the-badge)
+<p align="left">
+    <a href="https://jitpack.io/#heretere/hch">
+        <img alt="JitPack" src="https://img.shields.io/jitpack/v/github/heretere/hch?style=for-the-badge">
+    </a>
+    <a href="#" onclick="return false;">
+        <img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/heretere/hch?style=for-the-badge">
+    </a>
+    <a href="#" onclick="return false;">
+        <img alt="GitHub code size in bytes" src="https://img.shields.io/github/languages/code-size/heretere/hac?style=for-the-badge">
+    </a>
+    <a href="https://github.com/heretere/hch/blob/main/LICENSE">
+        <img alt="GitHub license" src="https://img.shields.io/github/license/heretere/hch?style=for-the-badge">
+    </a>
+</p>
 
 Heretere's Config Handler is a lazy config loading library. The goal of this library is to allow config file generation
 and processing without worrying about structure. The primary way to define config values is through annotations, however
