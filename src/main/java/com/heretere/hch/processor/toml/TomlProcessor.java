@@ -105,7 +105,7 @@ public final class TomlProcessor extends Processor<TomlParseResult> {
         }
     }
 
-    @Override public boolean processConfigPath(final @NotNull ConfigPath configPath) throws InvalidTypeException,
+    @Override public void processConfigPath(final @NotNull ConfigPath configPath) throws InvalidTypeException,
         IllegalAccessException {
         boolean success = true;
 
@@ -125,7 +125,6 @@ public final class TomlProcessor extends Processor<TomlParseResult> {
             this.getEntries().put(configPath.getKey(), configPath);
         }
 
-        return success;
     }
 
     /**
@@ -140,7 +139,7 @@ public final class TomlProcessor extends Processor<TomlParseResult> {
         }
     }
 
-    @Override public boolean load() throws IllegalAccessException, IOException, InvalidTypeException {
+    @Override public void load() throws IllegalAccessException, IOException, InvalidTypeException {
         try {
             /* Create file */
             this.createFileIfNotExists();
@@ -182,13 +181,13 @@ public final class TomlProcessor extends Processor<TomlParseResult> {
             throw e;
         }
 
-        return true;
+        this.loadSuccess = true;
     }
 
-    @Override public boolean save() throws IllegalAccessException, IOException {
+    @Override public void save() throws IllegalAccessException, IOException {
         /* If the config file failed to load we don't want to overwrite it with bad values. */
         if (!this.loadSuccess) {
-            return false;
+            return;
         }
 
         List<String> lines = Lists.newArrayList();
@@ -225,9 +224,8 @@ public final class TomlProcessor extends Processor<TomlParseResult> {
         }
 
         this.createFileIfNotExists();
+        System.out.println(lines);
         Files.write(super.getFileLocation(), lines, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
-
-        return true;
     }
 
     /**

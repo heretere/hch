@@ -213,24 +213,19 @@ public abstract class Processor<T> {
      * Used to process and add config paths to the processor.
      *
      * @param configPath The config path to process.
-     * @return true if the processing was a success.
      */
-    public abstract boolean processConfigPath(@NotNull ConfigPath configPath) throws InvalidTypeException,
+    public abstract void processConfigPath(@NotNull ConfigPath configPath) throws InvalidTypeException,
         IllegalAccessException;
 
     /**
      * Used to load the config file and populate the entry map with found values.
-     *
-     * @return true if the loading was a success.
      */
-    public abstract boolean load() throws IOException, InvalidTypeException, IllegalAccessException;
+    public abstract void load() throws IOException, InvalidTypeException, IllegalAccessException;
 
     /**
      * Used to save the config file based on the entry map.
-     *
-     * @return true if the saving was a success.
      */
-    public abstract boolean save() throws IllegalAccessException, IOException;
+    public abstract void save() throws IllegalAccessException, IOException;
 
     /**
      * See implementation for more information.

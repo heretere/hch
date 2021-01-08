@@ -62,6 +62,8 @@ public final class YamlProcessor extends Processor<YamlConfiguration> {
      */
     private @Nullable YamlConfiguration yaml;
 
+    private boolean loadSuccess = false;
+
     /**
      * Creates a new YamlProcessor.
      *
@@ -102,26 +104,23 @@ public final class YamlProcessor extends Processor<YamlConfiguration> {
         }
     }
 
-    @Override public boolean processConfigPath(final @NotNull ConfigPath configPath) throws InvalidTypeException,
+    @Override public void processConfigPath(final @NotNull ConfigPath configPath) throws InvalidTypeException,
         IllegalAccessException {
-        boolean success = true;
 
         if (configPath instanceof ConfigField) {
             this.attachSectionParent(configPath);
             super.getEntries().put(configPath.getKey(), configPath);
 
             if (this.yaml != null && this.yaml.contains(configPath.getKey())) {
-                success = super.deserializeToField(this.yaml, (ConfigField<?>) configPath);
+                super.deserializeToField(this.yaml, (ConfigField<?>) configPath);
             }
         } else {
             this.getEntries().put(configPath.getKey(), configPath);
         }
-
-        return success;
     }
 
     @Override
-    public boolean load() throws IOException, InvalidTypeException, IllegalAccessException {
+    public void load() throws IOException, InvalidTypeException, IllegalAccessException {
         this.createFileIfNotExists();
 
         this.yaml = YamlConfiguration.loadConfiguration(super.getFileLocation().toFile());
@@ -144,7 +143,7 @@ public final class YamlProcessor extends Processor<YamlConfiguration> {
             }
         }
 
-        return true;
+        this.loadSuccess = true;
     }
 
     private void createFileIfNotExists() throws IOException {
@@ -155,11 +154,14 @@ public final class YamlProcessor extends Processor<YamlConfiguration> {
     }
 
     @Override
-    public boolean save() throws IOException, IllegalAccessException {
+    public void save() throws IOException, IllegalAccessException {
+        if (!loadSuccess) {
+            return;
+        }
+
         List<String> lines = Lists.newArrayList();
 
-        for (ConfigPath configPath : super.getEntries()
-                                          .values()) {
+        for (ConfigPath configPath : super.getEntries().values()) {
             String indentation = StringUtils.repeat("  ", StringUtils.split(configPath.getKey(), ".").length - 1);
 
             configPath.getComments().forEach(comment -> lines.add(indentation + "# " + comment));
@@ -188,7 +190,6 @@ public final class YamlProcessor extends Processor<YamlConfiguration> {
         this.createFileIfNotExists();
         Files.write(super.getFileLocation(), lines, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
 
-        return true;
     }
 
     private List<String> serializeToString(final @NotNull Object object) {

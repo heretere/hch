@@ -54,7 +54,7 @@ public class MultiConfigHandler {
     public void loadConfigClass(
         final @NotNull Object instance,
         final @NotNull ProcessorType processorType
-    ) throws IllegalAccessException, InvalidTypeException {
+    ) throws IllegalAccessException, InvalidTypeException, IOException {
         Map<String, ConfigPath> configPaths = this.parser.getConfigPaths(instance);
 
         if (!configPaths.isEmpty()) {
@@ -79,7 +79,7 @@ public class MultiConfigHandler {
         final @NotNull String relativeFilePath,
         final @NotNull Collection<ConfigPath> configPaths,
         final @NotNull ProcessorType processorType
-    ) throws IllegalAccessException, InvalidTypeException {
+    ) throws IllegalAccessException, InvalidTypeException, IOException {
         Processor<?> processor = this.getProcessor(relativeFilePath, processorType);
 
         for (ConfigPath configPath : configPaths) {
@@ -91,38 +91,20 @@ public class MultiConfigHandler {
 
     /**
      * Loads all the configs.
-     *
-     * @return true if all loaded successfully.
      */
-    public boolean load() {
+    public void load() throws IllegalAccessException, IOException, InvalidTypeException {
         for (Processor<?> processor : this.files.values()) {
-            try {
-                if (!processor.load()) {
-                    return false;
-                }
-            } catch (IOException | InvalidTypeException | IllegalAccessException e) {
-                return false;
-            }
+            processor.load();
         }
-        return true;
     }
 
     /**
      * Saves all the loaded config files.
-     *
-     * @return true if all configs were saved successfully.
      */
-    public boolean unload() {
+    public void unload() throws IOException, IllegalAccessException {
         for (Processor<?> processor : this.files.values()) {
-            try {
-                if (!processor.save()) {
-                    return false;
-                }
-            } catch (IllegalAccessException | IOException e) {
-                return false;
-            }
+            processor.save();
         }
-        return true;
     }
 
     /**
