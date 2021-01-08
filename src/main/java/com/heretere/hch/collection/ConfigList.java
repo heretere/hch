@@ -38,10 +38,6 @@ public class ConfigList<T> extends ArrayList<T> implements TypeDefinition<T> {
         this.type = type;
     }
 
-    @Override public @NotNull Class<T> getGenericType() {
-        return this.type;
-    }
-
     public static <T> ConfigList<T> newInstance(
         final @NotNull Class<T> type,
         final @NotNull T... elements
@@ -49,5 +45,9 @@ public class ConfigList<T> extends ArrayList<T> implements TypeDefinition<T> {
         ConfigList<T> list = new ConfigList<>(type);
         list.addAll(Arrays.asList(elements));
         return list;
+    }
+
+    @Override public @NotNull Class<T> getGenericType() {
+        return this.type;
     }
 }

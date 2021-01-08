@@ -42,7 +42,7 @@ public interface TypeDeserializer<T, K> extends TypeHandler<K> {
         @NotNull T parser,
         @NotNull Class<?> exactType,
         @NotNull String key
-    ) throws InvalidTypeException, InvalidTypeException;
+    ) throws InvalidTypeException;
 
     @NotNull K deserializeRaw(
         @NotNull Class<?> exactType,

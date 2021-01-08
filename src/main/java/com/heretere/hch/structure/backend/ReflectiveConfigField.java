@@ -26,7 +26,6 @@
 package com.heretere.hch.structure.backend;
 
 import com.google.common.base.Preconditions;
-import com.heretere.hch.collection.ConfigList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
