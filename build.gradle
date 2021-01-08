@@ -53,19 +53,35 @@ dependencies {
     api 'org.tomlj:tomlj:1.0.0'
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier.set("sources")
-    from sourceSets.main.allSource
-}
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier.set("javadoc")
-    from javadoc.destinationDir
-}
+            pom {
+                url = 'https://github.com/heretere/hch'
 
-artifacts {
-    archives sourcesJar
-    archives javadocJar
+                developers {
+                    developer {
+                        id = 'Heretere'
+                        name = 'Justin Heflin'
+                    }
+                }
+
+                issueManagement {
+                    system = 'GitHub Issues'
+                    url = 'https://github.com/heretere/hch/issues'
+                }
+
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+            }
+        }
+    }
 }
 
 publishing {
