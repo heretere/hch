@@ -57,6 +57,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * This class is used for processing and saving YAML config file types.
+ */
 public final class YamlProcessor extends Processor<YamlConfiguration> {
     /**
      * The processing backend for the YamlProcessor.

@@ -34,6 +34,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * This is used to get character values from a config.
+ */
 public final class YamlCharacterSerializer implements MultiSerializer<YamlConfiguration, Character> {
     @Override public @NotNull Character deserialize(
         final @NotNull YamlConfiguration parser,

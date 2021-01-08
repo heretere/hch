@@ -28,6 +28,12 @@ package com.heretere.hch.processor;
 import com.heretere.hch.processor.exception.InvalidTypeException;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Used to deserialize config keys from a backend processor
+ *
+ * @param <T> The backend processor type
+ * @param <K> The deserialized value.
+ */
 public interface TypeDeserializer<T, K> extends TypeHandler<K> {
     /**
      * Deserialized a config key to a value.
@@ -44,6 +50,12 @@ public interface TypeDeserializer<T, K> extends TypeHandler<K> {
         @NotNull String key
     ) throws InvalidTypeException;
 
+    /**
+     * @param exactType The generic type of the passed in value
+     * @param value     The value
+     * @return A value that is attempted to be converted to the generic type of this class.
+     * @throws InvalidTypeException When deserialization fails
+     */
     @NotNull K deserializeRaw(
         @NotNull Class<?> exactType,
         @NotNull Object value

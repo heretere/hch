@@ -37,6 +37,11 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * Used to build config paths instead of using annotations.
+ *
+ * @param <T> The generic type of the path
+ */
 public final class ConfigPathBuilder<T> {
     /**
      * The generic type of this config path builder.

@@ -34,6 +34,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * This is used to get string values from a config.
+ */
 public final class YamlStringSerializer implements MultiSerializer<YamlConfiguration, String> {
     @Override public @NotNull String deserialize(
         final @NotNull YamlConfiguration parser,

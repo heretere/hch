@@ -34,6 +34,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * This is used to get integer values from a config.
+ */
 public final class YamlIntegerSerializer implements MultiSerializer<YamlConfiguration, Integer> {
     @Override public @NotNull Integer deserialize(
         final @NotNull YamlConfiguration parser,

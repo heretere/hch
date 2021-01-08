@@ -29,6 +29,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * This is used to serialize generic types to a string.
+ *
+ * @param <K> The generic type.
+ */
 public interface TypeSerializer<K> extends TypeHandler<K> {
     /**
      * Converts an object to a string that can't be deserialized from the processor backend.

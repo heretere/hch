@@ -35,6 +35,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * This class is used to convert config strings to enums.
+ */
 @SuppressWarnings({"rawtypes", "unchecked"}) //We specifically want to handle all enum types for this class
 public final class YamlRawEnumSerializer implements MultiSerializer<YamlConfiguration, Enum> {
     @Override public @NotNull Enum deserialize(

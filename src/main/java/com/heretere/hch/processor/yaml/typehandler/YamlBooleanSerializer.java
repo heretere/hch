@@ -34,6 +34,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * This is used to get boolean values from a config.
+ */
 public final class YamlBooleanSerializer implements MultiSerializer<YamlConfiguration, Boolean> {
     @Override public @NotNull Boolean deserialize(
         final @NotNull YamlConfiguration parser,

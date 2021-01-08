@@ -53,6 +53,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * This class is used for processing and saving TOML config file types.
+ */
 public final class TomlProcessor extends Processor<TomlParseResult> {
     /**
      * The processing backend for the TomlProcessor.

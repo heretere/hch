@@ -36,6 +36,9 @@ import org.tomlj.TomlParseResult;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * This class is used to parse raw collections
+ */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public final class TomlRawCollectionSerializer implements MultiSerializer<TomlParseResult, Collection> {
     @Override public @NotNull Collection deserialize(

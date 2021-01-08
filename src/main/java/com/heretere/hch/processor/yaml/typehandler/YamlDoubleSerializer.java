@@ -34,6 +34,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * This is used to get double values from a config.
+ */
 public final class YamlDoubleSerializer implements MultiSerializer<YamlConfiguration, Double> {
     @Override
     public @NotNull Double deserialize(

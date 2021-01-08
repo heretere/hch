@@ -34,6 +34,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * This is used to get float values from a config.
+ */
 public final class YamlFloatSerializer implements MultiSerializer<YamlConfiguration, Float> {
     @Override
     public @NotNull Float deserialize(

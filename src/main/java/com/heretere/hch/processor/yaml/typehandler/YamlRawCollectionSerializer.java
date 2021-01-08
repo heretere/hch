@@ -35,6 +35,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * This class is used for processing raw collection types.
+ */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public final class YamlRawCollectionSerializer implements MultiSerializer<YamlConfiguration, Collection> {
     @Override public @NotNull Collection deserialize(

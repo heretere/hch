@@ -26,12 +26,19 @@
 package com.heretere.hch.structure.builder;
 
 import com.google.common.collect.Lists;
+import com.heretere.hch.MultiConfigHandler;
+import com.heretere.hch.ProcessorType;
+import com.heretere.hch.processor.exception.InvalidTypeException;
 import com.heretere.hch.structure.backend.ConfigPath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.List;
 
+/**
+ * Used to build config files instead of using annotations.
+ */
 public final class ConfigBuilder {
     /**
      * The config paths attached to this builder.
@@ -66,6 +73,7 @@ public final class ConfigBuilder {
 
     /**
      * @param path The config path to attach to this builder.
+     * @return this
      */
     public @NotNull ConfigBuilder addConfigPath(final @NotNull ConfigPath path) {
         this.paths.add(path);
@@ -75,9 +83,14 @@ public final class ConfigBuilder {
     /**
      * Registers this config path to the API.
      */
-    public void build() {
+    public void build(
+        final @NotNull MultiConfigHandler handler,
+        final @NotNull ProcessorType type
+    ) throws IllegalAccessException, IOException, InvalidTypeException {
         if (this.relativePath == null) {
             throw new IllegalStateException("Please define the relative path.");
         }
+
+        handler.loadConfigPaths(this.relativePath, this.paths, type);
     }
 }

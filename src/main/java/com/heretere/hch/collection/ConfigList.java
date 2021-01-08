@@ -31,6 +31,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * This is used to create list types.
+ *
+ * @param <T> The generic type of the list.
+ */
 public class ConfigList<T> extends ArrayList<T> implements TypeDefinition<T> {
     private final @NotNull Class<T> type;
 
@@ -38,7 +43,13 @@ public class ConfigList<T> extends ArrayList<T> implements TypeDefinition<T> {
         this.type = type;
     }
 
-    public static <T> ConfigList<T> newInstance(
+    /**
+     * @param type     The class of the generic type.
+     * @param elements The elements to add to the list.
+     * @param <T>      The generic type of the list.
+     * @return A new config list instance
+     */
+    @SafeVarargs public static <T> ConfigList<T> newInstance(
         final @NotNull Class<T> type,
         final @NotNull T... elements
     ) {

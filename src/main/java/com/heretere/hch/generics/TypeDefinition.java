@@ -27,6 +27,14 @@ package com.heretere.hch.generics;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Used to store the generic type of a class for runtime usage.
+ *
+ * @param <T> The generic type.
+ */
 public interface TypeDefinition<T> {
+    /**
+     * @return The generic type of this class.
+     */
     @NotNull Class<T> getGenericType();
 }
