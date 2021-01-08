@@ -29,10 +29,10 @@ plugins {
     id 'java-library'
 }
 
-group 'com.heretere'
+group 'com.github.heretere'
 
 /* This is used to change the version for all subprojects */
-version '1.0.9'
+version '1.0.10'
 
 repositories {
     mavenCentral()
@@ -66,6 +66,37 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 artifacts {
     archives sourcesJar
     archives javadocJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            pom {
+                url = 'https://github.com/heretere/hch'
+
+                developers {
+                    developer {
+                        id = 'Heretere'
+                        name = 'Justin Heflin'
+                    }
+                }
+
+                issueManagement {
+                    system = 'GitHub Issues'
+                    url = 'https://github.com/heretere/hch/issues'
+                }
+
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+            }
+        }
+    }
 }
 
 wrapper {
