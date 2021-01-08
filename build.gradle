@@ -32,7 +32,7 @@ plugins {
 group 'com.heretere'
 
 /* This is used to change the version for all subprojects */
-version '1.0.2'
+version '1.0.4'
 
 repositories {
     mavenCentral()
