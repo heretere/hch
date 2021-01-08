@@ -2,20 +2,26 @@
 
 [![](https://jitpack.io/v/heretere/hch.svg)](https://jitpack.io/#heretere/hch)
 
-Heretere's Config Handler is a lazy config loading library. The goal of this library is to allow config file generation and processing without worrying about structure. The primary way to define config values is through annotations, however there is also builder support whenever you need to dynamically declare config values.
+Heretere's Config Handler is a lazy config loading library. The goal of this library is to allow config file generation
+and processing without worrying about structure. The primary way to define config values is through annotations, however
+there is also builder support whenever you need to dynamically declare config values.
 
 ---
+
 # Features
+
 - Generate and load config files using annotations
 - Generate and load config filees using builders
 - Automatically structured config file so you don't have to worry about declaration order
 - Create your own serializer and deserializer to handle different types
 
 #### Supported Configuration Types
+
 - TOML
 - YAML
 
 ---
+
 # Examples
 
 Here is an example main class to show you want it looks like to declare config values.
@@ -96,6 +102,7 @@ public class Example extends JavaPlugin {
 
 The class above will generate this config file:
 Since we selected TOML to generate, it generated a toml file.
+
 ```toml
 # Comment 1
 # Comment 2
@@ -122,33 +129,34 @@ name = "HCH"
 ##### Maven
 
 ```xml
-	<repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-	</repositories>
+
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
 ```
 
 ```xml
-	<dependency>
-	    <groupId>com.github.heretere</groupId>
-	    <artifactId>hch</artifactId>
-	    <version>Version</version>
-	</dependency>
+
+<dependency>
+    <groupId>com.github.heretere</groupId>
+    <artifactId>hch</artifactId>
+    <version>Version</version>
+</dependency>
 ```
 
 ##### Gradle
 
 ```groovy
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
+repositories {
+    maven { url 'https://jitpack.io' }
+}
 ```
 
 ```groovy
-	dependencies {
-	        implementation 'com.github.heretere:hch:Tag'
-	}
+dependencies {
+    implementation 'com.github.heretere:hch:Version'
+}
 ```
