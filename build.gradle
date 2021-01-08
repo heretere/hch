@@ -25,14 +25,14 @@
 
 plugins {
     id 'idea'
-    id 'maven'
+    id 'maven-publish'
     id 'java-library'
 }
 
 group 'com.heretere'
 
 /* This is used to change the version for all subprojects */
-version '1.0.1'
+version '1.0.2'
 
 repositories {
     mavenCentral()
@@ -50,5 +50,5 @@ dependencies {
     compileOnlyApi 'org.jetbrains:annotations:20.1.0'
     compileOnlyApi 'org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT'
 
-    implementation 'org.tomlj:tomlj:1.0.0'
+    api 'org.tomlj:tomlj:1.0.0'
 }
