@@ -8,9 +8,9 @@
         <img alt="Lines of code" src="https://img.shields.io/tokei/lines/github/heretere/hch?style=for-the-badge">
     </a>
     <a href="#" onclick="return false;">
-        <img alt="GitHub code size in bytes" src="https://img.shields.io/github/languages/code-size/heretere/hac?style=for-the-badge">
+        <img alt="GitHub code size in bytes" src="https://img.shields.io/github/languages/code-size/heretere/hch?style=for-the-badge">
     </a>
-    <a href="https://github.com/heretere/hch/blob/main/LICENSE">
+    <a href="https://github.com/heretere/hch/LICENSE">
         <img alt="GitHub license" src="https://img.shields.io/github/license/heretere/hch?style=for-the-badge">
     </a>
 </p>
@@ -24,8 +24,8 @@ there is also builder support whenever you need to dynamically declare config va
 # Features
 
 - Generate and load config files using annotations
-- Generate and load config filees using builders
-- Automatically structured config file so you don't have to worry about declaration order
+- Generate and load config files using builders
+- Automatically structured config files. So you don't have to worry about declaration order
 - Create your own serializer and deserializer to handle different types
 
 #### Supported Configuration Types
