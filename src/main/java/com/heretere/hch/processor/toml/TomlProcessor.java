@@ -30,6 +30,10 @@ import com.heretere.hch.collection.ConfigList;
 import com.heretere.hch.processor.Processor;
 import com.heretere.hch.processor.exception.InvalidTypeException;
 import com.heretere.hch.processor.toml.typehandler.TomlBooleanSerializer;
+import com.heretere.hch.processor.toml.typehandler.TomlCharacterSerializer;
+import com.heretere.hch.processor.toml.typehandler.TomlDoubleSerializer;
+import com.heretere.hch.processor.toml.typehandler.TomlFloatSerializer;
+import com.heretere.hch.processor.toml.typehandler.TomlIntegerSerializer;
 import com.heretere.hch.processor.toml.typehandler.TomlRawCollectionSerializer;
 import com.heretere.hch.processor.toml.typehandler.TomlRawEnumSerializer;
 import com.heretere.hch.processor.toml.typehandler.TomlStringSerializer;
@@ -87,10 +91,14 @@ public final class TomlProcessor extends Processor<TomlParseResult> {
      * Attaches pre made serializers to this processor.
      */
     private void createDefaultHandlers() {
-        super.attachTypeHandler(new TomlStringSerializer());
         super.attachTypeHandler(new TomlBooleanSerializer());
-        super.attachTypeHandler(new TomlRawEnumSerializer());
+        super.attachTypeHandler(new TomlCharacterSerializer());
+        super.attachTypeHandler(new TomlDoubleSerializer());
+        super.attachTypeHandler(new TomlFloatSerializer());
+        super.attachTypeHandler(new TomlIntegerSerializer());
         super.attachTypeHandler(new TomlRawCollectionSerializer());
+        super.attachTypeHandler(new TomlRawEnumSerializer());
+        super.attachTypeHandler(new TomlStringSerializer());
     }
 
     /**
