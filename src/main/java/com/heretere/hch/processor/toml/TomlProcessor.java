@@ -275,7 +275,11 @@ public final class TomlProcessor extends Processor<TomlParseResult> {
         if (output.size() > 1 || Collection.class.isAssignableFrom(object.getClass())) {
             for (int x = 0; x != output.size(); x++) {
                 if (x == 0) {
-                    output.set(x, "[" + output.get(x) + ", ");
+                    if (output.size() != 1) {
+                        output.set(x, "[" + output.get(x) + ", ");
+                    } else {
+                        output.set(x, "[" + output.get(x) + "]");
+                    }
                 } else if (x + 1 == output.size()) {
                     output.set(x, output.get(x) + "]");
                 } else {
