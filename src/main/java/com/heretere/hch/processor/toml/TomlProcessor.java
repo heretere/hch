@@ -118,7 +118,6 @@ public final class TomlProcessor extends Processor<TomlParseResult> {
 
     @Override public void processConfigPath(final @NotNull ConfigPath configPath) throws InvalidTypeException,
         IllegalAccessException {
-        boolean success = true;
 
         /* If the config path is a section we need to do some extra processing. */
         if (configPath instanceof ConfigField) {
@@ -130,7 +129,7 @@ public final class TomlProcessor extends Processor<TomlParseResult> {
 
             /* If the toml file contains this key, we deserialize the value to the config field. */
             if (this.toml != null && this.toml.contains(configPath.getKey())) {
-                success = super.deserializeToField(this.toml, (ConfigField<?>) configPath);
+                super.deserializeToField(this.toml, (ConfigField<?>) configPath);
             }
         } else {
             this.getEntries().put(configPath.getKey(), configPath);
@@ -235,7 +234,6 @@ public final class TomlProcessor extends Processor<TomlParseResult> {
         }
 
         this.createFileIfNotExists();
-        System.out.println(lines);
         Files.write(super.getFileLocation(), lines, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING);
     }
 
