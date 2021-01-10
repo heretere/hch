@@ -272,7 +272,7 @@ public final class TomlProcessor extends Processor<TomlParseResult> {
         *
         * Any extra formatting is done in the save method.
          */
-        if (output.size() > 1) {
+        if (output.size() > 1 || Collection.class.isAssignableFrom(object.getClass())) {
             for (int x = 0; x != output.size(); x++) {
                 if (x == 0) {
                     output.set(x, "[" + output.get(x) + ", ");

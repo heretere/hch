@@ -214,7 +214,7 @@ public final class YamlProcessor extends Processor<YamlConfiguration> {
             output.add(object.toString());
         }
 
-        if (output.size() > 1) {
+        if (output.size() > 1 || Collection.class.isAssignableFrom(object.getClass())) {
             output.add(0, "");
         }
 
