@@ -26,7 +26,6 @@
 package com.heretere.hch.processor.yaml.typehandler;
 
 import com.google.common.collect.Lists;
-import com.heretere.hch.collection.ConfigList;
 import com.heretere.hch.processor.MultiSerializer;
 import com.heretere.hch.processor.exception.InvalidTypeException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -55,9 +54,7 @@ public final class YamlRawCollectionSerializer implements MultiSerializer<YamlCo
             throw new InvalidTypeException();
         }
 
-        ConfigList configList = ConfigList.newInstance(exactType);
-        configList.addAll(list);
-        return configList;
+        return list;
     }
 
     @Override public @NotNull Collection deserializeRaw(

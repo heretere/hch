@@ -25,40 +25,55 @@
 
 package com.heretere.hch.collection;
 
-import com.heretere.hch.generics.TypeDefinition;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * This is used to create list types.
  *
  * @param <T> The generic type of the list.
  */
-public class ConfigList<T> extends ArrayList<T> implements TypeDefinition<T> {
+public class ConfigList<T> implements ConfigCollection<T> {
     private final @NotNull Class<T> type;
+    private final @NotNull List<@NotNull T> backingList;
 
-    private ConfigList(final @NotNull Class<T> type) {
+    private ConfigList(
+        final @NotNull Class<T> type,
+        final @NotNull List<@NotNull T> backingList
+    ) {
         this.type = type;
+        this.backingList = backingList;
     }
 
     /**
-     * @param type     The class of the generic type.
-     * @param elements The elements to add to the list.
-     * @param <T>      The generic type of the list.
+     * @param type        The class of the generic type.
+     * @param backendList The backend list implementation.
+     * @param <T>         The generic type of the list.
      * @return A new config list instance
      */
-    @SafeVarargs public static <T> ConfigList<T> newInstance(
+    @SuppressWarnings("unchecked")
+    public static <T> ConfigList<T> newInstance(
         final @NotNull Class<T> type,
-        final @NotNull T... elements
+        final @NotNull Collection<?> backendList
     ) {
-        ConfigList<T> list = new ConfigList<>(type);
-        list.addAll(Arrays.asList(elements));
-        return list;
+        return new ConfigList<>(type, (List<T>) backendList);
     }
 
     @Override public @NotNull Class<T> getGenericType() {
         return this.type;
+    }
+
+    @Override public void add(T type) {
+        this.backingList.add(type);
+    }
+
+    @Override public void remove(T type) {
+        this.backingList.remove(type);
+    }
+
+    @Override public @NotNull Collection<@NotNull T> getBackingCollection() {
+        return this.backingList;
     }
 }

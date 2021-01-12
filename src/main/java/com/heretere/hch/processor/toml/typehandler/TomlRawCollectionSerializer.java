@@ -56,9 +56,7 @@ public final class TomlRawCollectionSerializer implements MultiSerializer<TomlPa
             throw new InvalidTypeException();
         }
 
-        ConfigList list = ConfigList.newInstance(exactType);
-        list.addAll(array.toList());
-        return list;
+        return Lists.newArrayList(array.toList());
     }
 
     @Override public @NotNull Collection deserializeRaw(

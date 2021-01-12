@@ -27,7 +27,7 @@
 package com.heretere.hch.processor.yaml;
 
 import com.google.common.collect.Lists;
-import com.heretere.hch.collection.ConfigList;
+import com.heretere.hch.collection.ConfigCollection;
 import com.heretere.hch.processor.Processor;
 import com.heretere.hch.processor.exception.InvalidTypeException;
 import com.heretere.hch.processor.yaml.typehandler.YamlBooleanSerializer;
@@ -199,9 +199,10 @@ public final class YamlProcessor extends Processor<YamlConfiguration> {
     private List<String> serializeToString(final @NotNull Object object) {
         List<String> output = Lists.newArrayList();
 
-        if (ConfigList.class.isAssignableFrom(object.getClass())) {
-            super.getSerializer(((ConfigList<?>) object).getGenericType())
-                 .ifPresent(serializer -> ((Collection<?>) object)
+        if (ConfigCollection.class.isAssignableFrom(object.getClass())) {
+            super.getSerializer(((ConfigCollection<?>) object).getGenericType())
+                 .ifPresent(serializer -> ((ConfigCollection<?>) object)
+                     .getBackingCollection()
                      .forEach(item -> output.addAll(serializer.serialize(item))));
         } else {
             /* If there is a serializer use it */

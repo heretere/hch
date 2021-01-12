@@ -26,7 +26,9 @@
 package com.heretere.hch.processor;
 
 import com.google.common.collect.Maps;
+import com.heretere.hch.collection.ConfigCollection;
 import com.heretere.hch.collection.ConfigList;
+import com.heretere.hch.collection.ConfigSet;
 import com.heretere.hch.processor.exception.InvalidTypeException;
 import com.heretere.hch.processor.toml.TomlProcessor;
 import com.heretere.hch.processor.yaml.YamlProcessor;
@@ -164,8 +166,8 @@ public abstract class Processor<T> {
 
         /* Check if config field generic type is a collection if so we need to get the generic type instead of searching
          * for a collection serializer. */
-        if (ConfigList.class.isAssignableFrom(configField.getGenericType())) {
-            Class<?> genericType = ((ConfigList<?>)
+        if (ConfigCollection.class.isAssignableFrom(configField.getGenericType())) {
+            Class<?> genericType = ((ConfigCollection<?>)
                 configField.getValue().orElseThrow(NullPointerException::new)).getGenericType();
 
             Optional<TypeDeserializer<T, ?>> deserializer = this.getDeserializer(genericType);
@@ -179,14 +181,35 @@ public abstract class Processor<T> {
                         .orElseThrow(IllegalStateException::new)
                         .deserialize(
                             backend,
-                            configField.getGenericType(),
+                            genericType,
                             configField.getKey()
                         );
 
                 /* Next we need to convert all the values from the collection into
                  *  Their correct type to be passed to the field */
-                ConfigList output = ConfigList.newInstance(genericType);
+                ConfigCollection output;
 
+                if (ConfigSet.class.isAssignableFrom(configField.getGenericType())) {
+                    ConfigSet<?> tmpSet = (ConfigSet<?>)
+                        configField.getValue()
+                                   .orElseThrow(IllegalArgumentException::new);
+
+                    output = ConfigSet.newInstance(
+                        genericType,
+                        tmpSet.getBackingCollection()
+                    );
+                } else {
+                    ConfigList<?> tmpList = (ConfigList<?>)
+                        configField.getValue()
+                                   .orElseThrow(IllegalArgumentException::new);
+
+                    output = ConfigList.newInstance(
+                        genericType,
+                        tmpList.getBackingCollection()
+                    );
+                }
+
+                output.getBackingCollection().clear();
                 for (Object value : collection) {
                     output.add(deserializer.get().deserializeRaw(genericType, value));
                 }
