@@ -53,6 +53,10 @@ dependencies {
     api 'org.tomlj:tomlj:1.0.0'
 }
 
+javadoc {
+    destinationDir file(rootProject.buildDir.getParent() + "/docs")
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
