@@ -1,5 +1,9 @@
 package com.heretere.hch.core.internal.util;
 
+import com.heretere.hch.core.internal.map.ConfigMap;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,11 +14,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import com.heretere.hch.core.internal.map.ConfigMap;
 
 public final class ConfigMapperUtils {
     private static final Pattern PERIOD_MATCHER = Pattern.compile("^(.*)\\.\\s*(.*)$");
@@ -43,7 +42,7 @@ public final class ConfigMapperUtils {
         return matcher.group(1);
     }
 
-    public static @NotNull ConfigMap flattenMap(final @NotNull ConfigMap configMap) {
+    public static @NotNull ConfigMap deflateMap(final @NotNull ConfigMap configMap) {
         final ConfigMap newMap = new ConfigMap();
 
         configMap.forEach((key, value) -> {
@@ -55,11 +54,11 @@ public final class ConfigMapperUtils {
         return newMap;
     }
 
-    public static @NotNull ConfigMap structureMap(final @NotNull ConfigMap configMap) {
-        return ConfigMapperUtils.recursiveStructureMap("", new ConfigMap(), configMap);
+    public static @NotNull ConfigMap inflateMap(final @NotNull ConfigMap configMap) {
+        return ConfigMapperUtils.inflateMap("", new ConfigMap(), configMap);
     }
 
-    private static @NotNull ConfigMap recursiveStructureMap(
+    private static @NotNull ConfigMap inflateMap(
             final @NotNull String parentKey,
             final @NotNull ConfigMap configMap,
             final @NotNull Map<?, ?> rawMap
@@ -70,13 +69,13 @@ public final class ConfigMapperUtils {
             final String childKey = dottedParentKey + key;
             if (value instanceof Map) {
                 configMap.put(childKey, new ConfigMap());
-                ConfigMapperUtils.recursiveStructureMap(childKey, configMap, (Map<?, ?>) value);
+                ConfigMapperUtils.inflateMap(childKey, configMap, (Map<?, ?>) value);
             } else {
                 configMap.put(childKey, value);
             }
 
             Optional.ofNullable(configMap.get(parentKey))
-                .ifPresent(map -> ((ConfigMap) map).put(key.toString(), value));
+                    .ifPresent(map -> ((ConfigMap) map).put(key.toString(), value));
         });
 
         return configMap;
@@ -89,43 +88,43 @@ public final class ConfigMapperUtils {
         }
 
         original.keySet()
-            .forEach(key -> {
-                if (newMap.get(key) instanceof Map && original.get(key) instanceof Map) {
-                    final Map<?, ?> originalChildRaw = (Map<?, ?>) Objects.requireNonNull(original.get(key));
-                    final Map<?, ?> newChildRaw = (Map<?, ?>) Objects.requireNonNull(newMap.get(key));
+                .forEach(key -> {
+                    if (newMap.get(key) instanceof Map && original.get(key) instanceof Map) {
+                        final Map<?, ?> originalChildRaw = (Map<?, ?>) Objects.requireNonNull(original.get(key));
+                        final Map<?, ?> newChildRaw = (Map<?, ?>) Objects.requireNonNull(newMap.get(key));
 
-                    final ConfigMap originalChild = originalChildRaw instanceof ConfigMap
-                        ? (ConfigMap) originalChildRaw
-                        : new ConfigMap(originalChildRaw);
+                        final ConfigMap originalChild = originalChildRaw instanceof ConfigMap
+                                ? (ConfigMap) originalChildRaw
+                                : new ConfigMap(originalChildRaw);
 
-                    final ConfigMap newChild = newChildRaw instanceof ConfigMap
-                        ? (ConfigMap) newChildRaw
-                        : new ConfigMap(newChildRaw);
+                        final ConfigMap newChild = newChildRaw instanceof ConfigMap
+                                ? (ConfigMap) newChildRaw
+                                : new ConfigMap(newChildRaw);
 
-                    original.put(
-                        key,
-                        deepMerge(
-                            originalChild,
-                            newChild
-                        )
-                    );
+                        original.put(
+                                key,
+                                deepMerge(
+                                        originalChild,
+                                        newChild
+                                )
+                        );
 
-                } else if (newMap.get(key) instanceof Collection && original.get(key) instanceof Collection) {
-                    final Collection<Object> originalChild = (Collection<Object>) Objects.requireNonNull(
-                        original.get(key)
-                    );
-                    final Collection<Object> newChild = (Collection<Object>) Objects.requireNonNull(
-                        newMap.get(key)
-                    );
+                    } else if (newMap.get(key) instanceof Collection && original.get(key) instanceof Collection) {
+                        final Collection<Object> originalChild = (Collection<Object>) Objects.requireNonNull(
+                                original.get(key)
+                        );
+                        final Collection<Object> newChild = (Collection<Object>) Objects.requireNonNull(
+                                newMap.get(key)
+                        );
 
-                    newChild.stream()
-                        .filter(each -> !originalChild.contains(each))
-                        .forEach(originalChild::add);
-                } else {
-                    Optional.ofNullable(newMap.get(key))
-                        .ifPresent(value -> original.put(key, value));
-                }
-            });
+                        newChild.stream()
+                                .filter(each -> !originalChild.contains(each))
+                                .forEach(originalChild::add);
+                    } else {
+                        Optional.ofNullable(newMap.get(key))
+                                .ifPresent(value -> original.put(key, value));
+                    }
+                });
 
         return original;
     }
@@ -140,17 +139,17 @@ public final class ConfigMapperUtils {
             if (key.contains("_comments") && value instanceof Collection) {
                 commentKeys.add(key);
                 comments.add(
-                    new SimpleImmutableEntry<>(
-                            key.replace("_comments", ""),
-                            ConfigMapperUtils.convertCollection((Collection<?>) value)
-                    )
+                        new SimpleImmutableEntry<>(
+                                key.replace("_comments", ""),
+                                ConfigMapperUtils.convertCollection((Collection<?>) value)
+                        )
                 );
             } else if (value instanceof Map) {
                 ConfigMapperUtils.extractComments(
-                    comments,
-                    value instanceof ConfigMap
-                        ? (ConfigMap) value
-                        : new ConfigMap((Map<?, ?>) value)
+                        comments,
+                        value instanceof ConfigMap
+                                ? (ConfigMap) value
+                                : new ConfigMap((Map<?, ?>) value)
                 );
             }
         });
@@ -162,7 +161,7 @@ public final class ConfigMapperUtils {
 
     private static List<String> convertCollection(final @NotNull Collection<?> collection) {
         return collection.stream()
-            .map(Object::toString)
-            .collect(Collectors.toList());
+                .map(Object::toString)
+                .collect(Collectors.toList());
     }
 }

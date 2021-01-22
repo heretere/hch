@@ -60,7 +60,7 @@ public class HCHConfig implements ErrorHolder {
 
             if (configMap.isPresent()) {
                 System.out.println(configMap);
-                this.config = ConfigMapperUtils.structureMap(configMap.get());
+                this.config = ConfigMapperUtils.inflateMap(configMap.get());
             } else {
                 this.errors.addAll(reader.getErrors());
             }
@@ -112,7 +112,7 @@ public class HCHConfig implements ErrorHolder {
             this.errors.isEmpty()
                 && this.createIfNotExists()
                 && this.updateConfigWithPOJOs()
-                && !writer.write(this.fileLocation, ConfigMapperUtils.flattenMap(this.config))
+                && !writer.write(this.fileLocation, ConfigMapperUtils.deflateMap(this.config))
         ) {
             this.errors.addAll(writer.getErrors());
         }

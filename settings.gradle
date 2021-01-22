@@ -1,4 +1,4 @@
-rootProject.name = 'hchv2'
+rootProject.name = 'hch'
 include ':hch-core'
 include ':hch-yaml'
 include ':hch-toml'
