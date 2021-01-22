@@ -1,94 +1,124 @@
-/*
- * MIT License
- *
- * Copyright (c) 2021 Justin Heflin
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
- */
+import java.nio.charset.StandardCharsets
+import java.time.Duration
 
 plugins {
-    id 'idea'
-    id 'maven-publish'
-    id 'java-library'
+    /* Beekeeper */
+    id 'io.beekeeper.gradle.plugins.dependency-updates' version '0.9.14' apply false
+    id 'io.beekeeper.gradle.plugins.formatter' version '0.9.14' apply false
+    id 'io.beekeeper.gradle.plugins.ide' version '0.9.14' apply false
+    /* Publishing */
+    id 'de.marcphilipp.nexus-publish' version '0.4.0'
+    /* General */
+    id 'base'
+    id 'checkstyle'
 }
 
-group 'com.github.heretere'
+allprojects {
+    group 'com.heretere.hch'
+    version '1.0.0'
+    description "Runtime configuration generation"
 
-/* This is used to change the version for all subprojects */
-version '1.1.0'
+    tasks.withType(Checkstyle) {
+        reports {
+            xml.enabled false
+            html.enabled true
+        }
+    }
 
-repositories {
-    mavenCentral()
-    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots' }
-    maven { url 'https://papermc.io/repo/repository/maven-public/' }
-    maven { url 'https://repo.codemc.org/repository/maven-public/' }
-}
-
-compileJava {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-dependencies {
-    compileOnlyApi 'org.jetbrains:annotations:20.1.0'
-    compileOnlyApi 'org.spigotmc:spigot-api:1.16.4-R0.1-SNAPSHOT'
-
-    api 'org.tomlj:tomlj:1.0.0'
-}
-
-javadoc {
-    destinationDir file(rootProject.buildDir.getParent() + "/docs")
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-
-            pom {
-                url = 'https://github.com/heretere/hch'
-
-                developers {
-                    developer {
-                        id = 'Heretere'
-                        name = 'Justin Heflin'
-                    }
-                }
-
-                issueManagement {
-                    system = 'GitHub Issues'
-                    url = 'https://github.com/heretere/hch/issues'
-                }
-
-                licenses {
-                    license {
-                        name = 'MIT License'
-                        url = 'https://opensource.org/licenses/MIT'
-                    }
-                }
-            }
+    [JavaCompile, Javadoc].forEach { taskType ->
+        tasks.withType(taskType) {
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
+            options.encoding(StandardCharsets.UTF_8.name())
         }
     }
 }
 
-wrapper {
-    gradleVersion = "6.8-rc-1"
-    distributionType = Wrapper.DistributionType.ALL
+subprojects { subproject ->
+    apply plugin: 'java-library'
+    apply plugin: 'signing'
+    apply plugin: 'de.marcphilipp.nexus-publish'
+    apply plugin: 'io.beekeeper.gradle.plugins.dependency-updates'
+    apply plugin: 'io.beekeeper.gradle.plugins.formatter'
+    apply plugin: 'io.beekeeper.gradle.plugins.ide'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compileOnlyApi 'org.jetbrains:annotations:20.1.0'
+    }
+
+    java {
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    nexusPublishing {
+        connectTimeout.set(Duration.ofMinutes(10))
+        clientTimeout.set(Duration.ofMinutes(10))
+        repositories {
+            sonatype()
+        }
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+
+                pom {
+                    name = "Heretere's Config Handler"
+                    artifactId = subproject.name
+                    packaging = 'jar'
+                    url = 'https://github.com/heretere/hch'
+                    description = subproject.description
+
+                    developers {
+                        developer {
+                            id = 'Heretere'
+                            name = 'Justin Heflin'
+                            url = 'https://heretere.com'
+                            email = 'heirteir@protonmail.com'
+                        }
+                    }
+
+                    issueManagement {
+                        system = 'GitHub Issues'
+                        url = 'https://github.com/heretere/hch/issues'
+                    }
+
+                    scm {
+                        connection = 'scm:git@github.com:heretere/hch.git'
+                        developerConnection = 'scm:git@github.com:heretere/hch.git'
+                        url = 'https://github.com/heretere/hch'
+                    }
+
+                    licenses {
+                        license {
+                            name = 'MIT License'
+                            url = 'https://opensource.org/licenses/MIT'
+                        }
+                    }
+                }
+            }
+        }
+
+        signing {
+            useGpgCmd()
+            sign publishing.publications.mavenJava
+        }
+    }
+
+    javadoc {
+        title = subproject.name
+        source subproject.sourceSets.main.allJava
+        classpath = subproject.sourceSets.main.compileClasspath
+        options {
+            links 'https://docs.oracle.com/en/java/javase/11/docs/api',
+                'https://javadoc.io/doc/org.jetbrains/annotations/20.1.0',
+                'https://hub.spigotmc.org/javadocs/spigot/'
+        }
+    }
 }
