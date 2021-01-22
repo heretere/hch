@@ -17,11 +17,11 @@ import com.heretere.hch.core.annotation.ConfigFile;
 import com.heretere.hch.core.annotation.POJOKey;
 import com.heretere.hch.core.exception.InvalidFileExtensionException;
 import com.heretere.hch.core.exception.InvalidPojoException;
-import com.heretere.hch.core.internal.ErrorHolder;
-import com.heretere.hch.core.internal.config.ConfigAdapter;
-import com.heretere.hch.core.internal.config.ConfigReader;
-import com.heretere.hch.core.internal.config.ConfigWriter;
-import com.heretere.hch.core.internal.util.ConfigMapperUtils;
+import com.heretere.hch.core.backend.ErrorHolder;
+import com.heretere.hch.core.backend.config.ConfigAdapter;
+import com.heretere.hch.core.backend.config.ConfigReader;
+import com.heretere.hch.core.backend.config.ConfigWriter;
+import com.heretere.hch.core.backend.util.ConfigMapperUtils;
 
 public class MultiConfigHandler implements ErrorHolder {
     private final @NotNull Path basePath;

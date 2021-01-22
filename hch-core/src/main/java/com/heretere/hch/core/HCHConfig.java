@@ -1,21 +1,20 @@
 package com.heretere.hch.core;
 
+import com.google.gson.reflect.TypeToken;
+import com.heretere.hch.core.exception.InvalidPojoException;
+import com.heretere.hch.core.backend.ErrorHolder;
+import com.heretere.hch.core.backend.config.ConfigReader;
+import com.heretere.hch.core.backend.config.ConfigWriter;
+import com.heretere.hch.core.backend.map.ConfigMap;
+import com.heretere.hch.core.backend.util.ConfigMapperUtils;
+import org.jetbrains.annotations.NotNull;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
-import org.jetbrains.annotations.NotNull;
-
-import com.google.gson.reflect.TypeToken;
-import com.heretere.hch.core.exception.InvalidPojoException;
-import com.heretere.hch.core.internal.ErrorHolder;
-import com.heretere.hch.core.internal.config.ConfigReader;
-import com.heretere.hch.core.internal.config.ConfigWriter;
-import com.heretere.hch.core.internal.map.ConfigMap;
-import com.heretere.hch.core.internal.util.ConfigMapperUtils;
 
 public class HCHConfig implements ErrorHolder {
     private final @NotNull MultiConfigHandler parent;
@@ -59,7 +58,6 @@ public class HCHConfig implements ErrorHolder {
             final Optional<ConfigMap> configMap = reader.read(this.fileLocation);
 
             if (configMap.isPresent()) {
-                System.out.println(configMap);
                 this.config = ConfigMapperUtils.inflateMap(configMap.get());
             } else {
                 this.errors.addAll(reader.getErrors());
@@ -91,10 +89,10 @@ public class HCHConfig implements ErrorHolder {
         try {
             this.pojos.forEach((key, pojo) -> {
                 final ConfigMap newPOJOSection = this.parent.getGsonBackend()
-                    .fromJson(
-                        this.parent.getGsonBackend().toJson(pojo),
-                        new TypeToken<ConfigMap>() {}.getType()
-                    );
+                        .fromJson(
+                                this.parent.getGsonBackend().toJson(pojo),
+                                new TypeToken<ConfigMap>() {}.getType()
+                        );
 
                 this.recursiveUpdatePOJOParent(key, newPOJOSection);
                 this.config.put(key, ConfigMapperUtils.deepMerge((ConfigMap) this.config.get(key), newPOJOSection));
@@ -109,10 +107,10 @@ public class HCHConfig implements ErrorHolder {
 
     public boolean write(final @NotNull ConfigWriter writer) {
         if (
-            this.errors.isEmpty()
-                && this.createIfNotExists()
-                && this.updateConfigWithPOJOs()
-                && !writer.write(this.fileLocation, ConfigMapperUtils.deflateMap(this.config))
+                this.errors.isEmpty()
+                        && this.createIfNotExists()
+                        && this.updateConfigWithPOJOs()
+                        && !writer.write(this.fileLocation, ConfigMapperUtils.deflateMap(this.config))
         ) {
             this.errors.addAll(writer.getErrors());
         }
@@ -127,8 +125,8 @@ public class HCHConfig implements ErrorHolder {
         if (this.pojos.containsKey(key)) {
             throw new InvalidPojoException(
                     String.format(
-                        "Pojo already registered at path '%s'.",
-                        key
+                            "Pojo already registered at path '%s'.",
+                            key
                     )
             );
         }

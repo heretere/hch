@@ -1,6 +1,6 @@
-package com.heretere.hch.core.internal.util;
+package com.heretere.hch.core.backend.util;
 
-import com.heretere.hch.core.internal.map.ConfigMap;
+import com.heretere.hch.core.backend.map.ConfigMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,12 +17,17 @@ import java.util.stream.Collectors;
 
 public final class ConfigMapperUtils {
     private static final Pattern PERIOD_MATCHER = Pattern.compile("^(.*)\\.\\s*(.*)$");
+    private static final Pattern EMPTY_SPACE_PATTERN = Pattern.compile("[\\s|\"]+");
 
     private ConfigMapperUtils() {
         throw new IllegalStateException("Utility Class.");
     }
 
-    public static String getEverythingAfterLastPeriod(final @NotNull String name) {
+    public static @NotNull String stripWhiteSpace(final @NotNull String string) {
+        return EMPTY_SPACE_PATTERN.matcher(string).replaceAll("");
+    }
+
+    public static @Nullable String getEverythingAfterLastPeriod(final @NotNull String name) {
         final Matcher matcher = ConfigMapperUtils.PERIOD_MATCHER.matcher(name);
 
         if (!matcher.find()) {
@@ -32,7 +37,7 @@ public final class ConfigMapperUtils {
         return matcher.group(2);
     }
 
-    public static String getEverythingBeforeLastPeriod(final @NotNull String name) {
+    public static @Nullable String getEverythingBeforeLastPeriod(final @NotNull String name) {
         final Matcher matcher = ConfigMapperUtils.PERIOD_MATCHER.matcher(name);
 
         if (!matcher.find()) {
@@ -95,11 +100,11 @@ public final class ConfigMapperUtils {
 
                         final ConfigMap originalChild = originalChildRaw instanceof ConfigMap
                                 ? (ConfigMap) originalChildRaw
-                                : new ConfigMap(originalChildRaw);
+                                : ConfigMap.copy(originalChildRaw);
 
                         final ConfigMap newChild = newChildRaw instanceof ConfigMap
                                 ? (ConfigMap) newChildRaw
-                                : new ConfigMap(newChildRaw);
+                                : ConfigMap.copy(newChildRaw);
 
                         original.put(
                                 key,
@@ -149,7 +154,7 @@ public final class ConfigMapperUtils {
                         comments,
                         value instanceof ConfigMap
                                 ? (ConfigMap) value
-                                : new ConfigMap((Map<?, ?>) value)
+                                : ConfigMap.copy((Map<?, ?>) value)
                 );
             }
         });

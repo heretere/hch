@@ -1,4 +1,4 @@
-package com.heretere.hch.core.internal.comments;
+package com.heretere.hch.core.backend.comments;
 
 import java.nio.file.Path;
 import java.util.Optional;

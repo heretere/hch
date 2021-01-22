@@ -1,5 +1,12 @@
 package com.heretere.hch.json;
 
+import com.google.gson.reflect.TypeToken;
+import com.heretere.hch.core.MultiConfigHandler;
+import com.heretere.hch.core.backend.config.ConfigReader;
+import com.heretere.hch.core.backend.config.ConfigWriter;
+import com.heretere.hch.core.backend.map.ConfigMap;
+import org.jetbrains.annotations.NotNull;
+
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,19 +16,11 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.jetbrains.annotations.NotNull;
-
-import com.google.gson.reflect.TypeToken;
-import com.heretere.hch.core.MultiConfigHandler;
-import com.heretere.hch.core.internal.config.ConfigReader;
-import com.heretere.hch.core.internal.config.ConfigWriter;
-import com.heretere.hch.core.internal.map.ConfigMap;
-
 public class JsonParser implements ConfigReader, ConfigWriter {
     private final @NotNull MultiConfigHandler parent;
     private final @NotNull Set<@NotNull Throwable> errors;
 
-    private JsonCommentParser commentParser;
+    private final @NotNull JsonCommentParser commentParser;
 
     public JsonParser(final @NotNull MultiConfigHandler parent) {
         this.parent = parent;
@@ -37,9 +36,9 @@ public class JsonParser implements ConfigReader, ConfigWriter {
             if (json.isPresent() && this.commentParser.getErrors().isEmpty()) {
                 try {
                     return Optional.of(
-                        this.parent
-                            .getGsonBackend()
-                            .fromJson(json.get(), new TypeToken<ConfigMap>() {}.getType())
+                            this.parent
+                                    .getGsonBackend()
+                                    .fromJson(json.get(), new TypeToken<ConfigMap>() {}.getType())
                     );
                 } catch (Exception e) {
                     this.errors.add(e);
@@ -57,14 +56,14 @@ public class JsonParser implements ConfigReader, ConfigWriter {
             final @NotNull ConfigMap configMap
     ) {
         if (this.errors.isEmpty()) {
-            final Optional<String> json = this.commentParser.writeCommentsToFile(configMap);
+            final Optional<String> json = this.commentParser.writeCommentsToString(configMap);
 
             if (json.isPresent() && this.commentParser.getErrors().isEmpty()) {
                 try {
                     Files.write(
-                        fileLocation,
-                        json.get().getBytes(StandardCharsets.UTF_8),
-                        StandardOpenOption.TRUNCATE_EXISTING
+                            fileLocation,
+                            json.get().getBytes(StandardCharsets.UTF_8),
+                            StandardOpenOption.TRUNCATE_EXISTING
                     );
                 } catch (Exception e) {
                     this.errors.add(e);
