@@ -1,5 +1,6 @@
-package com.heretere.hch.yaml;
+package com.heretere.hch.json;
 
+import com.heretere.hch.core.MultiConfigHandler;
 import com.heretere.hch.core.backend.comments.CommentReader;
 import com.heretere.hch.core.backend.comments.CommentWriter;
 import com.heretere.hch.core.backend.map.ConfigMap;
@@ -20,52 +21,32 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class YamlCommentParser implements CommentReader, CommentWriter {
-    private static final String COMMENT_PATTERN = "#";
+public class JsonCommentParser implements CommentReader, CommentWriter {
+    private static final String COMMENT_PATTERN = "//";
     private static final Pattern KEY_PATTERN = Pattern.compile("^(.*):.*$");
 
-    private final @NotNull YamlParser yamlParser;
+    private final @NotNull MultiConfigHandler parent;
     private final @NotNull Set<@NotNull Throwable> errors;
 
-    public YamlCommentParser(
-            final @NotNull YamlParser yamlParser
-    ) {
-        this.yamlParser = yamlParser;
+    public JsonCommentParser(final @NotNull MultiConfigHandler parent) {
+        this.parent = parent;
         this.errors = new HashSet<>();
     }
 
-    private static String getIndent(final @NotNull String string) {
-        StringBuilder s = new StringBuilder();
-
-        for (char character : string.toCharArray()) {
-            if (!Character.isSpaceChar(character)) {
-                break;
-            }
-
-            s.append(' ');
-        }
-
-        return s.toString();
-    }
-
-    @Override public @NotNull Set<@NotNull Throwable> getErrors() {
-        return Collections.unmodifiableSet(this.errors);
-    }
-
-    @Override public @NotNull Optional<@NotNull String> readCommentsFromFile(@NotNull Path fileLocation) {
+    @Override
+    public @NotNull Optional<@NotNull String> readCommentsFromFile(final @NotNull Path fileLocation) {
         if (this.errors.isEmpty()) {
             try (Stream<String> lines = Files.lines(fileLocation, StandardCharsets.UTF_8)) {
                 final StringBuilder output = new StringBuilder();
                 final List<String> prependComments = new ArrayList<>();
 
                 lines.forEach(line -> {
-                    if (line.trim().startsWith(YamlCommentParser.COMMENT_PATTERN)) {
+                    if (line.trim().startsWith(JsonCommentParser.COMMENT_PATTERN)) {
                         prependComments.add(line);
                     } else {
-                        final Matcher matcher = YamlCommentParser.KEY_PATTERN.matcher(line);
+                        final Matcher matcher = JsonCommentParser.KEY_PATTERN.matcher(line);
 
                         if (!matcher.matches()) {
                             output.append(line).append(System.lineSeparator());
@@ -73,24 +54,14 @@ public class YamlCommentParser implements CommentReader, CommentWriter {
                         }
 
                         final String key = matcher.group(1).trim().replace("\"", "");
-                        final String indent = YamlCommentParser.getIndent(line);
 
                         if (!prependComments.isEmpty()) {
                             output
-                                    .append(indent)
+                                    .append("\"_comments_")
                                     .append(key)
-                                    .append("_comments:")
-                                    .append(System.lineSeparator())
-                                    .append(
-                                            new BufferedReader(
-                                                    new StringReader(this.yamlParser
-                                                            .getYamlBackend()
-                                                            .dump(prependComments)
-                                                    ))
-                                                    .lines()
-                                                    .map(comment -> indent + "  " + comment)
-                                                    .collect(Collectors.joining(System.lineSeparator()))
-                                    )
+                                    .append("\": ")
+                                    .append(this.parent.getGsonBackend().toJson(prependComments))
+                                    .append(",")
                                     .append(System.lineSeparator());
 
                             prependComments.clear();
@@ -109,7 +80,8 @@ public class YamlCommentParser implements CommentReader, CommentWriter {
         return Optional.empty();
     }
 
-    @Override public @NotNull Optional<@NotNull String> writeCommentsToString(@NotNull ConfigMap configMap) {
+    @Override
+    public @NotNull Optional<@NotNull String> writeCommentsToString(final @NotNull ConfigMap configMap) {
         if (this.errors.isEmpty()) {
             try {
                 final List<SimpleImmutableEntry<String, List<String>>> comments = ConfigMapperUtils.extractComments(
@@ -117,13 +89,13 @@ public class YamlCommentParser implements CommentReader, CommentWriter {
                         configMap
                 );
 
-                final String yaml = this.yamlParser.getYamlBackend().dump(configMap);
+                final String json = this.parent.getGsonBackend().toJson(configMap);
                 final StringBuilder output = new StringBuilder();
 
-                new BufferedReader(new StringReader(yaml))
+                new BufferedReader(new StringReader(json))
                         .lines()
                         .forEach(line -> {
-                            final Matcher matcher = YamlCommentParser.KEY_PATTERN.matcher(line);
+                            final Matcher matcher = JsonCommentParser.KEY_PATTERN.matcher(line);
 
                             if (!matcher.matches()) {
                                 output.append(line).append(System.lineSeparator());
@@ -132,15 +104,15 @@ public class YamlCommentParser implements CommentReader, CommentWriter {
 
                             comments
                                     .stream()
+                                    .findFirst()
                                     .filter(entry ->
                                             ConfigMapperUtils.stripWhiteSpace(entry.getKey())
                                                     .equals(ConfigMapperUtils.stripWhiteSpace(matcher.group(1)))
                                     )
-                                    .findFirst()
                                     .ifPresent(entry -> {
                                         entry.getValue().forEach(comment -> output.append(comment)
                                                 .append(System.lineSeparator()));
-                                        comments.remove(entry);
+                                        comments.remove(0);
                                     });
 
                             output.append(line).append(System.lineSeparator());
@@ -151,7 +123,11 @@ public class YamlCommentParser implements CommentReader, CommentWriter {
                 this.errors.add(e);
             }
         }
-
         return Optional.empty();
+    }
+
+    @Override
+    public @NotNull Set<@NotNull Throwable> getErrors() {
+        return Collections.unmodifiableSet(this.errors);
     }
 }

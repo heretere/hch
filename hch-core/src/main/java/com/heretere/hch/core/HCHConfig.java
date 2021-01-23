@@ -1,12 +1,12 @@
 package com.heretere.hch.core;
 
 import com.google.gson.reflect.TypeToken;
-import com.heretere.hch.core.exception.InvalidPojoException;
 import com.heretere.hch.core.backend.ErrorHolder;
 import com.heretere.hch.core.backend.config.ConfigReader;
 import com.heretere.hch.core.backend.config.ConfigWriter;
 import com.heretere.hch.core.backend.map.ConfigMap;
 import com.heretere.hch.core.backend.util.ConfigMapperUtils;
+import com.heretere.hch.core.exception.InvalidPojoException;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
@@ -69,20 +69,22 @@ public class HCHConfig implements ErrorHolder {
 
     private void recursiveUpdatePOJOParent(
             final @NotNull String key,
-            final @NotNull Object value
+            final @NotNull ConfigMap value
     ) {
         final String parentKey = ConfigMapperUtils.getEverythingBeforeLastPeriod(key);
         final String baseKey = ConfigMapperUtils.getEverythingAfterLastPeriod(key);
 
-        if (parentKey == null || baseKey == null) {
+        if (baseKey == null) {
             return;
         }
 
         final ConfigMap attach = new ConfigMap();
         attach.put(baseKey, value);
-        this.config.put(parentKey, ConfigMapperUtils.deepMerge((ConfigMap) this.config.get(parentKey), attach));
 
-        this.recursiveUpdatePOJOParent(parentKey, attach);
+        if (parentKey != null) {
+            this.config.put(parentKey, ConfigMapperUtils.deepMerge((ConfigMap) this.config.get(parentKey), attach));
+            this.recursiveUpdatePOJOParent(parentKey, attach);
+        }
     }
 
     private boolean updateConfigWithPOJOs() {
@@ -94,9 +96,10 @@ public class HCHConfig implements ErrorHolder {
                                 new TypeToken<ConfigMap>() {}.getType()
                         );
 
-                this.recursiveUpdatePOJOParent(key, newPOJOSection);
                 this.config.put(key, ConfigMapperUtils.deepMerge((ConfigMap) this.config.get(key), newPOJOSection));
                 newPOJOSection.forEach((childKey, value) -> this.config.put(key + "." + childKey, value));
+
+                this.recursiveUpdatePOJOParent(key, newPOJOSection);
             });
         } catch (Exception e) {
             this.errors.add(e);

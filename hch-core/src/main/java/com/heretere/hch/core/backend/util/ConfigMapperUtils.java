@@ -131,6 +131,13 @@ public final class ConfigMapperUtils {
                     }
                 });
 
+        newMap.keySet()
+                .forEach(key -> {
+                    if (!original.containsKey(key)) {
+                        original.put(key, Objects.requireNonNull(newMap.get(key)));
+                    }
+                });
+
         return original;
     }
 
@@ -141,11 +148,11 @@ public final class ConfigMapperUtils {
         final List<String> commentKeys = new ArrayList<>();
 
         configMap.forEach((key, value) -> {
-            if (key.contains("_comments") && value instanceof Collection) {
+            if (key.contains("_comments_") && value instanceof Collection) {
                 commentKeys.add(key);
                 comments.add(
                         new SimpleImmutableEntry<>(
-                                key.replace("_comments", ""),
+                                key.replace("_comments_", ""),
                                 ConfigMapperUtils.convertCollection((Collection<?>) value)
                         )
                 );

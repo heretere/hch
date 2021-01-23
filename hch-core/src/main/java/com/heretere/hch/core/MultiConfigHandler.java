@@ -1,5 +1,18 @@
 package com.heretere.hch.core;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.heretere.hch.core.annotation.ConfigFile;
+import com.heretere.hch.core.annotation.POJOKey;
+import com.heretere.hch.core.backend.ErrorHolder;
+import com.heretere.hch.core.backend.config.ConfigAdapter;
+import com.heretere.hch.core.backend.config.ConfigReader;
+import com.heretere.hch.core.backend.config.ConfigWriter;
+import com.heretere.hch.core.backend.util.ConfigMapperUtils;
+import com.heretere.hch.core.exception.InvalidFileExtensionException;
+import com.heretere.hch.core.exception.InvalidPojoException;
+import org.jetbrains.annotations.NotNull;
+
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,20 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.jetbrains.annotations.NotNull;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.heretere.hch.core.annotation.ConfigFile;
-import com.heretere.hch.core.annotation.POJOKey;
-import com.heretere.hch.core.exception.InvalidFileExtensionException;
-import com.heretere.hch.core.exception.InvalidPojoException;
-import com.heretere.hch.core.backend.ErrorHolder;
-import com.heretere.hch.core.backend.config.ConfigAdapter;
-import com.heretere.hch.core.backend.config.ConfigReader;
-import com.heretere.hch.core.backend.config.ConfigWriter;
-import com.heretere.hch.core.backend.util.ConfigMapperUtils;
 
 public class MultiConfigHandler implements ErrorHolder {
     private final @NotNull Path basePath;
@@ -33,9 +32,9 @@ public class MultiConfigHandler implements ErrorHolder {
 
     public MultiConfigHandler(final @NotNull Path basePath) {
         this.gson =
-            new GsonBuilder()
-                .setPrettyPrinting()
-                .create();
+                new GsonBuilder()
+                        .setPrettyPrinting()
+                        .create();
 
         this.basePath = basePath;
 
@@ -53,8 +52,8 @@ public class MultiConfigHandler implements ErrorHolder {
         if (extension == null || extension.equals(name)) {
             throw new InvalidFileExtensionException(
                     String.format(
-                        "Couldn't find file extension in file name '%s'.",
-                        name
+                            "Couldn't find file extension in file name '%s'.",
+                            name
                     )
             );
         }
@@ -66,8 +65,8 @@ public class MultiConfigHandler implements ErrorHolder {
         if (!clazz.isAnnotationPresent(ConfigFile.class)) {
             throw new InvalidPojoException(
                     String.format(
-                        "Class '%s' doesn't define a ConfigFile annotation. Please add one.",
-                        clazz.getName()
+                            "Class '%s' doesn't define a ConfigFile annotation. Please add one.",
+                            clazz.getName()
                     )
             );
         }
@@ -84,18 +83,18 @@ public class MultiConfigHandler implements ErrorHolder {
             final AtomicReference<@NotNull String> path = new AtomicReference<>("");
 
             Optional.ofNullable(clazz.getAnnotation(POJOKey.class))
-                .ifPresent(annotation -> path.set(annotation.value()));
+                    .ifPresent(annotation -> path.set(annotation.value()));
 
             final Object value = config.get(path.get())
-                .orElseThrow(
-                    () -> new InvalidPojoException(
-                            String.format(
-                                "No value found at pojo key '%s' for class '%s'.",
-                                path,
-                                clazz.getName()
+                    .orElseThrow(
+                            () -> new InvalidPojoException(
+                                    String.format(
+                                            "No value found at pojo key '%s' for class '%s'.",
+                                            path,
+                                            clazz.getName()
+                                    )
                             )
-                    )
-                );
+                    );
 
             final T pojo = this.gson.fromJson(this.gson.toJson(value), clazz);
 
@@ -113,17 +112,19 @@ public class MultiConfigHandler implements ErrorHolder {
     public boolean saveAllConfigs() {
         if (this.errors.isEmpty()) {
             this.configs
-                .values()
-                .forEach(config -> {
-                    if (!this.errors.isEmpty()) {
-                        return;
-                    }
+                    .values()
+                    .forEach(config -> {
+                        if (!this.errors.isEmpty()) {
+                            return;
+                        }
 
-                    if (!config.write(this.getWriterByFileName(config.getFileLocation().getFileName().toString()))) {
-                        this.errors.addAll(config.getErrors());
-                    }
+                        if (!config.write(this.getWriterByFileName(config.getFileLocation()
+                                .getFileName()
+                                .toString()))) {
+                            this.errors.addAll(config.getErrors());
+                        }
 
-                });
+                    });
         }
 
         return this.errors.isEmpty();
@@ -148,31 +149,31 @@ public class MultiConfigHandler implements ErrorHolder {
     private @NotNull ConfigReader getReaderByFileName(final @NotNull String name) {
         final String extension = MultiConfigHandler.getExtensionFromFileName(name);
         return Optional.ofNullable(this.readers.get(extension))
-            .orElseThrow(
-                () -> new InvalidFileExtensionException(
-                        String.format(
-                            "Couldn't find registered Config Reader for file '%s'."
-                                + "File extension found: '%s'.",
-                            name,
-                            extension
+                .orElseThrow(
+                        () -> new InvalidFileExtensionException(
+                                String.format(
+                                        "Couldn't find registered Config Reader for file '%s'."
+                                                + "File extension found: '%s'.",
+                                        name,
+                                        extension
+                                )
                         )
-                )
-            );
+                );
     }
 
     private @NotNull ConfigWriter getWriterByFileName(final @NotNull String name) {
         final String extension = MultiConfigHandler.getExtensionFromFileName(name);
         return Optional.ofNullable(this.writers.get(extension))
-            .orElseThrow(
-                () -> new InvalidFileExtensionException(
-                        String.format(
-                            "Couldn't find registered Config Writer for file '%s'."
-                                + "File extension found: '%s'.",
-                            name,
-                            extension
+                .orElseThrow(
+                        () -> new InvalidFileExtensionException(
+                                String.format(
+                                        "Couldn't find registered Config Writer for file '%s'."
+                                                + "File extension found: '%s'.",
+                                        name,
+                                        extension
+                                )
                         )
-                )
-            );
+                );
     }
 
     public Optional<HCHConfig> getConfigByRelativePath(final @NotNull String path) {
@@ -188,18 +189,25 @@ public class MultiConfigHandler implements ErrorHolder {
         return this;
     }
 
-    public MultiConfigHandler registerConfigAdapterForFileExtension(
-            final @NotNull String extension,
-            final @NotNull ConfigAdapter adapter
+    public MultiConfigHandler registerConfigAdapterForFileExtensions(
+            final @NotNull ConfigAdapter adapter,
+            final @NotNull String @NotNull ... extensions
     ) {
+
         if (adapter instanceof ConfigReader) {
             final ConfigReader reader = (ConfigReader) adapter;
-            this.readers.put(extension, reader);
+
+            for (String extension : extensions) {
+                this.readers.put(extension, reader);
+            }
         }
 
         if (adapter instanceof ConfigWriter) {
             final ConfigWriter writer = (ConfigWriter) adapter;
-            this.writers.put(extension, writer);
+
+            for (String extension : extensions) {
+                this.writers.put(extension, writer);
+            }
         }
 
         return this;
@@ -207,10 +215,10 @@ public class MultiConfigHandler implements ErrorHolder {
 
     public MultiConfigHandler registerTypeAdapter(final @NotNull Class<?> type, final @NotNull Object adapter) {
         this.gson =
-            this.gson
-                .newBuilder()
-                .registerTypeAdapter(type, adapter)
-                .create();
+                this.gson
+                        .newBuilder()
+                        .registerTypeAdapter(type, adapter)
+                        .create();
 
         return this;
     }

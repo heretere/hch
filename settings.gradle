@@ -1,5 +1,10 @@
 rootProject.name = 'hch'
 include ':hch-core'
-include ':hch-yaml'
-include ':hch-toml'
-include ':hch-json'
+include ':hch-core:hch-yaml'
+include ':hch-core:hch-json'
+
+/* Spigot */
+include ':hch-spigot'
+include ':hch-spigot:hch-spigot-yaml'
+include ':hch-spigot:hch-spigot-json'
+include ':hch-spigot:hch-spigot-annotations'

@@ -1,0 +1,6 @@
+dependencies {
+    api(project(':hch-spigot'))
+    api(project(':hch-core:hch-json')) {
+        transitive false
+    }
+}

@@ -4,5 +4,5 @@ repositories {
 
 dependencies {
     api project(':hch-core')
-    implementation 'org.yaml:snakeyaml:1.27'
+    api 'org.yaml:snakeyaml:1.27'
 }

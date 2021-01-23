@@ -1,0 +1,10 @@
+repositories {
+    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+}
+
+dependencies {
+    api(project(':hch-core')) {
+        exclude group: 'com.google.code.gson'
+    }
+    compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+}
