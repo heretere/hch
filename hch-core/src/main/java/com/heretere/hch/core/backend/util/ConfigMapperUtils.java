@@ -56,7 +56,7 @@ public final class ConfigMapperUtils {
             }
         });
 
-        return newMap;
+        return newMap.containsKey("") ? (ConfigMap) Objects.requireNonNull(newMap.get("")) : newMap;
     }
 
     public static @NotNull ConfigMap inflateMap(final @NotNull ConfigMap configMap) {
@@ -80,7 +80,7 @@ public final class ConfigMapperUtils {
             }
 
             Optional.ofNullable(configMap.get(parentKey))
-                    .ifPresent(map -> ((ConfigMap) map).put(key.toString(), value));
+                .ifPresent(map -> ((ConfigMap) map).put(key.toString(), value));
         });
 
         return configMap;
@@ -93,50 +93,52 @@ public final class ConfigMapperUtils {
         }
 
         original.keySet()
-                .forEach(key -> {
-                    if (newMap.get(key) instanceof Map && original.get(key) instanceof Map) {
-                        final Map<?, ?> originalChildRaw = (Map<?, ?>) Objects.requireNonNull(original.get(key));
-                        final Map<?, ?> newChildRaw = (Map<?, ?>) Objects.requireNonNull(newMap.get(key));
+            .forEach(key -> {
+                if (newMap.get(key) instanceof Map && original.get(key) instanceof Map) {
+                    final Map<?, ?> originalChildRaw = (Map<?, ?>) Objects.requireNonNull(original.get(key));
+                    final Map<?, ?> newChildRaw = (Map<?, ?>) Objects.requireNonNull(newMap.get(key));
 
-                        final ConfigMap originalChild = originalChildRaw instanceof ConfigMap
-                                ? (ConfigMap) originalChildRaw
-                                : ConfigMap.copy(originalChildRaw);
+                    final ConfigMap originalChild = originalChildRaw instanceof ConfigMap
+                        ? (ConfigMap) originalChildRaw
+                        : ConfigMap.copy(originalChildRaw);
 
-                        final ConfigMap newChild = newChildRaw instanceof ConfigMap
-                                ? (ConfigMap) newChildRaw
-                                : ConfigMap.copy(newChildRaw);
+                    final ConfigMap newChild = newChildRaw instanceof ConfigMap
+                        ? (ConfigMap) newChildRaw
+                        : ConfigMap.copy(newChildRaw);
 
-                        original.put(
-                                key,
-                                deepMerge(
-                                        originalChild,
-                                        newChild
-                                )
-                        );
+                    original.put(
+                        key,
+                        deepMerge(
+                            originalChild,
+                            newChild
+                        )
+                    );
 
-                    } else if (newMap.get(key) instanceof Collection && original.get(key) instanceof Collection) {
-                        final Collection<Object> originalChild = (Collection<Object>) Objects.requireNonNull(
-                                original.get(key)
-                        );
-                        final Collection<Object> newChild = (Collection<Object>) Objects.requireNonNull(
-                                newMap.get(key)
-                        );
+                } else if (newMap.get(key) instanceof Collection && original.get(key) instanceof Collection) {
+                    final Collection<Object> originalChild = (Collection<Object>) Objects.requireNonNull(
+                        original.get(key)
+                    );
+                    final Collection<Object> newChild = (Collection<Object>) Objects.requireNonNull(
+                        newMap.get(key)
+                    );
 
-                        newChild.stream()
-                                .filter(each -> !originalChild.contains(each))
-                                .forEach(originalChild::add);
-                    } else {
-                        Optional.ofNullable(newMap.get(key))
-                                .ifPresent(value -> original.put(key, value));
-                    }
-                });
+                    originalChild.clear();
+
+                    newChild.stream()
+                        .filter(each -> !originalChild.contains(each))
+                        .forEach(originalChild::add);
+                } else {
+                    Optional.ofNullable(newMap.get(key))
+                        .ifPresent(value -> original.put(key, value));
+                }
+            });
 
         newMap.keySet()
-                .forEach(key -> {
-                    if (!original.containsKey(key)) {
-                        original.put(key, Objects.requireNonNull(newMap.get(key)));
-                    }
-                });
+            .forEach(key -> {
+                if (!original.containsKey(key)) {
+                    original.put(key, Objects.requireNonNull(newMap.get(key)));
+                }
+            });
 
         return original;
     }
@@ -151,17 +153,17 @@ public final class ConfigMapperUtils {
             if (key.contains("_comments_") && value instanceof Collection) {
                 commentKeys.add(key);
                 comments.add(
-                        new SimpleImmutableEntry<>(
-                                key.replace("_comments_", ""),
-                                ConfigMapperUtils.convertCollection((Collection<?>) value)
-                        )
+                    new SimpleImmutableEntry<>(
+                            key.replace("_comments_", ""),
+                            ConfigMapperUtils.convertCollection((Collection<?>) value)
+                    )
                 );
             } else if (value instanceof Map) {
                 ConfigMapperUtils.extractComments(
-                        comments,
-                        value instanceof ConfigMap
-                                ? (ConfigMap) value
-                                : ConfigMap.copy((Map<?, ?>) value)
+                    comments,
+                    value instanceof ConfigMap
+                        ? (ConfigMap) value
+                        : ConfigMap.copy((Map<?, ?>) value)
                 );
             }
         });
@@ -173,7 +175,7 @@ public final class ConfigMapperUtils {
 
     private static List<String> convertCollection(final @NotNull Collection<?> collection) {
         return collection.stream()
-                .map(Object::toString)
-                .collect(Collectors.toList());
+            .map(Object::toString)
+            .collect(Collectors.toList());
     }
 }

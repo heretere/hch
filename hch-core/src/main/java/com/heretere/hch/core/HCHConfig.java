@@ -11,10 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class HCHConfig implements ErrorHolder {
     private final @NotNull MultiConfigHandler parent;
@@ -58,7 +55,9 @@ public class HCHConfig implements ErrorHolder {
             final Optional<ConfigMap> configMap = reader.read(this.fileLocation);
 
             if (configMap.isPresent()) {
-                this.config = ConfigMapperUtils.inflateMap(configMap.get());
+                final ConfigMap tmp = ConfigMapperUtils.deflateMap(this.config);
+
+                this.config = ConfigMapperUtils.inflateMap(ConfigMapperUtils.deepMerge(tmp, configMap.get()));
             } else {
                 this.errors.addAll(reader.getErrors());
             }
@@ -91,10 +90,10 @@ public class HCHConfig implements ErrorHolder {
         try {
             this.pojos.forEach((key, pojo) -> {
                 final ConfigMap newPOJOSection = this.parent.getGsonBackend()
-                        .fromJson(
-                                this.parent.getGsonBackend().toJson(pojo),
-                                new TypeToken<ConfigMap>() {}.getType()
-                        );
+                    .fromJson(
+                        this.parent.getGsonBackend().toJson(pojo),
+                        new TypeToken<ConfigMap>() {}.getType()
+                    );
 
                 this.config.put(key, ConfigMapperUtils.deepMerge((ConfigMap) this.config.get(key), newPOJOSection));
                 newPOJOSection.forEach((childKey, value) -> this.config.put(key + "." + childKey, value));
@@ -108,12 +107,12 @@ public class HCHConfig implements ErrorHolder {
         return this.errors.isEmpty();
     }
 
-    public boolean write(final @NotNull ConfigWriter writer) {
+    public boolean write(final @NotNull ConfigWriter writer, final boolean forcePOJOValues) {
         if (
-                this.errors.isEmpty()
-                        && this.createIfNotExists()
-                        && this.updateConfigWithPOJOs()
-                        && !writer.write(this.fileLocation, ConfigMapperUtils.deflateMap(this.config))
+            this.errors.isEmpty()
+                && this.createIfNotExists()
+                && (!forcePOJOValues || this.updateConfigWithPOJOs())
+                && !writer.write(this.fileLocation, ConfigMapperUtils.deflateMap(this.config))
         ) {
             this.errors.addAll(writer.getErrors());
         }
@@ -128,8 +127,8 @@ public class HCHConfig implements ErrorHolder {
         if (this.pojos.containsKey(key)) {
             throw new InvalidPojoException(
                     String.format(
-                            "Pojo already registered at path '%s'.",
-                            key
+                        "Pojo already registered at path '%s'.",
+                        key
                     )
             );
         }

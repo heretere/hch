@@ -51,11 +51,13 @@ public class YamlCommentParser implements CommentReader, CommentWriter {
         return s.toString();
     }
 
-    @Override public @NotNull Set<@NotNull Throwable> getErrors() {
+    @Override
+    public @NotNull Set<@NotNull Throwable> getErrors() {
         return Collections.unmodifiableSet(this.errors);
     }
 
-    @Override public @NotNull Optional<@NotNull String> readCommentsFromFile(@NotNull Path fileLocation) {
+    @Override
+    public @NotNull Optional<@NotNull String> readCommentsFromFile(@NotNull Path fileLocation) {
         if (this.errors.isEmpty()) {
             try (Stream<String> lines = Files.lines(fileLocation, StandardCharsets.UTF_8)) {
                 final StringBuilder output = new StringBuilder();
@@ -77,22 +79,24 @@ public class YamlCommentParser implements CommentReader, CommentWriter {
 
                         if (!prependComments.isEmpty()) {
                             output
-                                    .append(indent)
-                                    .append("_comments_")
-                                    .append(key)
-                                    .append(":")
-                                    .append(System.lineSeparator())
-                                    .append(
-                                            new BufferedReader(
-                                                    new StringReader(this.yamlParser
-                                                            .getYamlBackend()
-                                                            .dump(prependComments)
-                                                    ))
-                                                    .lines()
-                                                    .map(comment -> indent + "  " + comment)
-                                                    .collect(Collectors.joining(System.lineSeparator()))
+                                .append(indent)
+                                .append("_comments_")
+                                .append(key)
+                                .append(":")
+                                .append(System.lineSeparator())
+                                .append(
+                                    new BufferedReader(
+                                            new StringReader(
+                                                    this.yamlParser
+                                                        .getYamlBackend()
+                                                        .dump(prependComments)
+                                            )
                                     )
-                                    .append(System.lineSeparator());
+                                        .lines()
+                                        .map(comment -> indent + "  " + comment)
+                                        .collect(Collectors.joining(System.lineSeparator()))
+                                )
+                                .append(System.lineSeparator());
 
                             prependComments.clear();
                         }
@@ -110,42 +114,46 @@ public class YamlCommentParser implements CommentReader, CommentWriter {
         return Optional.empty();
     }
 
-    @Override public @NotNull Optional<@NotNull String> writeCommentsToString(@NotNull ConfigMap configMap) {
+    @Override
+    public @NotNull Optional<@NotNull String> writeCommentsToString(final @NotNull ConfigMap configMap) {
         if (this.errors.isEmpty()) {
             try {
                 final List<SimpleImmutableEntry<String, List<String>>> comments = ConfigMapperUtils.extractComments(
-                        new ArrayList<>(),
-                        configMap
+                    new ArrayList<>(),
+                    configMap
                 );
 
                 final String yaml = this.yamlParser.getYamlBackend().dump(configMap);
                 final StringBuilder output = new StringBuilder();
 
                 new BufferedReader(new StringReader(yaml))
-                        .lines()
-                        .forEach(line -> {
-                            final Matcher matcher = YamlCommentParser.KEY_PATTERN.matcher(line);
+                    .lines()
+                    .forEach(line -> {
+                        final Matcher matcher = YamlCommentParser.KEY_PATTERN.matcher(line);
 
-                            if (!matcher.matches()) {
-                                output.append(line).append(System.lineSeparator());
-                                return;
-                            }
-
-                            comments
-                                    .stream()
-                                    .findFirst()
-                                    .filter(entry ->
-                                            ConfigMapperUtils.stripWhiteSpace(entry.getKey())
-                                                    .equals(ConfigMapperUtils.stripWhiteSpace(matcher.group(1)))
-                                    )
-                                    .ifPresent(entry -> {
-                                        entry.getValue().forEach(comment -> output.append(comment)
-                                                .append(System.lineSeparator()));
-                                        comments.remove(entry);
-                                    });
-
+                        if (!matcher.matches()) {
                             output.append(line).append(System.lineSeparator());
-                        });
+                            return;
+                        }
+
+                        comments
+                            .stream()
+                            .findFirst()
+                            .filter(
+                                entry -> ConfigMapperUtils.stripWhiteSpace(entry.getKey())
+                                    .equals(ConfigMapperUtils.stripWhiteSpace(matcher.group(1)))
+                            )
+                            .ifPresent(entry -> {
+                                entry.getValue()
+                                    .forEach(
+                                        comment -> output.append(comment)
+                                            .append(System.lineSeparator())
+                                    );
+                                comments.remove(entry);
+                            });
+
+                        output.append(line).append(System.lineSeparator());
+                    });
 
                 return Optional.of(output.toString());
             } catch (Exception e) {

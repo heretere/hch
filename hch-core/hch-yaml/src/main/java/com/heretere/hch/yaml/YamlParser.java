@@ -28,7 +28,7 @@ public final class YamlParser implements ConfigReader, ConfigWriter {
     private final @NotNull YamlCommentParser commentParser;
 
     public YamlParser(final @NotNull MultiConfigHandler parent) {
-        DumperOptions options = new DumperOptions();
+        final DumperOptions options = new DumperOptions();
         options.setPrettyFlow(true);
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
 
@@ -40,27 +40,34 @@ public final class YamlParser implements ConfigReader, ConfigWriter {
         this.commentParser = new YamlCommentParser(this);
     }
 
-    @Override public @NotNull Set<@NotNull Throwable> getErrors() {
+    @Override
+    public @NotNull Set<@NotNull Throwable> getErrors() {
         return Collections.unmodifiableSet(this.errors);
     }
 
-    @Override public @NotNull String getName() {
+    @Override
+    public @NotNull String getName() {
         return "YAML";
     }
 
-    @Override public @NotNull Optional<@NotNull ConfigMap> read(@NotNull Path fileLocation) {
+    @Override
+    public @NotNull Optional<@NotNull ConfigMap> read(final @NotNull Path fileLocation) {
+        if (fileLocation.toFile().length() == 0) {
+            return Optional.of(new ConfigMap());
+        }
+
         if (this.errors.isEmpty()) {
             final Optional<String> yaml = this.commentParser.readCommentsFromFile(fileLocation);
 
             if (yaml.isPresent() && this.commentParser.getErrors().isEmpty()) {
                 try {
                     final String json =
-                            this.parent.getGsonBackend().toJson((Map<?, ?>) this.yamlBackend.load(yaml.get()));
+                        this.parent.getGsonBackend().toJson((Map<?, ?>) this.yamlBackend.load(yaml.get()));
 
                     return Optional.of(
-                            this.parent
-                                    .getGsonBackend()
-                                    .fromJson(json, new TypeToken<ConfigMap>() {}.getType())
+                        this.parent
+                            .getGsonBackend()
+                            .fromJson(json, new TypeToken<ConfigMap>() {}.getType())
                     );
                 } catch (Exception e) {
                     this.errors.add(e);
@@ -73,8 +80,10 @@ public final class YamlParser implements ConfigReader, ConfigWriter {
         return Optional.empty();
     }
 
-    @Override public boolean write(
-            @NotNull Path fileLocation, @NotNull ConfigMap configMap
+    @Override
+    public boolean write(
+            final @NotNull Path fileLocation,
+            final @NotNull ConfigMap configMap
     ) {
         if (this.errors.isEmpty()) {
             final Optional<String> yaml = this.commentParser.writeCommentsToString(configMap);
@@ -82,9 +91,9 @@ public final class YamlParser implements ConfigReader, ConfigWriter {
             if (yaml.isPresent() && this.commentParser.getErrors().isEmpty()) {
                 try {
                     Files.write(
-                            fileLocation,
-                            yaml.get().getBytes(StandardCharsets.UTF_8),
-                            StandardOpenOption.TRUNCATE_EXISTING
+                        fileLocation,
+                        yaml.get().getBytes(StandardCharsets.UTF_8),
+                        StandardOpenOption.TRUNCATE_EXISTING
                     );
                 } catch (Exception e) {
                     this.errors.add(e);

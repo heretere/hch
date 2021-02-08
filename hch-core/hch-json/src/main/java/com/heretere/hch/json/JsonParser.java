@@ -30,15 +30,19 @@ public class JsonParser implements ConfigReader, ConfigWriter {
 
     @Override
     public @NotNull Optional<@NotNull ConfigMap> read(final @NotNull Path fileLocation) {
+        if (fileLocation.toFile().length() == 0) {
+            return Optional.of(new ConfigMap());
+        }
+
         if (this.errors.isEmpty()) {
             final Optional<String> json = this.commentParser.readCommentsFromFile(fileLocation);
 
             if (json.isPresent() && this.commentParser.getErrors().isEmpty()) {
                 try {
                     return Optional.of(
-                            this.parent
-                                    .getGsonBackend()
-                                    .fromJson(json.get(), new TypeToken<ConfigMap>() {}.getType())
+                        this.parent
+                            .getGsonBackend()
+                            .fromJson(json.get(), new TypeToken<ConfigMap>() {}.getType())
                     );
                 } catch (Exception e) {
                     this.errors.add(e);
@@ -61,9 +65,9 @@ public class JsonParser implements ConfigReader, ConfigWriter {
             if (json.isPresent() && this.commentParser.getErrors().isEmpty()) {
                 try {
                     Files.write(
-                            fileLocation,
-                            json.get().getBytes(StandardCharsets.UTF_8),
-                            StandardOpenOption.TRUNCATE_EXISTING
+                        fileLocation,
+                        json.get().getBytes(StandardCharsets.UTF_8),
+                        StandardOpenOption.TRUNCATE_EXISTING
                     );
                 } catch (Exception e) {
                     this.errors.add(e);
