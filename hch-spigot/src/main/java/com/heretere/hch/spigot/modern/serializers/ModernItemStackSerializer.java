@@ -22,13 +22,12 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
-import org.jetbrains.annotations.NotNull;
 
 public final class ModernItemStackSerializer implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
     private static final String NAME = "name";
     private static final String MATERIAL = "material";
     private static final String AMOUNT = "amount";
-    private static final String DURABILITY = "durability";
+    private static final String DAMAGE = "damage";
     private static final String LORE = "lore";
     private static final String ENCHANTMENTS = "enchantments";
 
@@ -61,12 +60,10 @@ public final class ModernItemStackSerializer implements JsonSerializer<ItemStack
 
         if (meta != null) {
             Optional.ofNullable(object.get(NAME)).ifPresent(name -> meta.setDisplayName(name.getAsString()));
-            Optional.ofNullable(object.get(DURABILITY))
-                .ifPresent(durability -> {
-                    if (meta instanceof Damageable) {
-                        ((Damageable) meta).setDamage(object.getAsInt());
-                    }
-                });
+            if (meta instanceof Damageable) {
+                Optional.ofNullable(object.get(DAMAGE))
+                    .ifPresent(durability -> ((Damageable) meta).setDamage(object.get(DAMAGE).getAsInt()));
+            }
             Optional.ofNullable(object.get(LORE))
                 .ifPresent(
                     lore -> meta.setLore(
@@ -121,7 +118,7 @@ public final class ModernItemStackSerializer implements JsonSerializer<ItemStack
         if (meta != null) {
             jsonObject.addProperty(NAME, meta.getDisplayName());
             if (meta instanceof Damageable) {
-                jsonObject.addProperty(DURABILITY, ((Damageable) meta).getDamage());
+                jsonObject.addProperty(DAMAGE, ((Damageable) meta).getDamage());
             }
 
             final List<String> lore = meta.getLore();
