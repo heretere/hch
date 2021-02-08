@@ -2,6 +2,7 @@ package com.heretere.hch.spigot.modern.serializers;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,6 +22,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
+import org.jetbrains.annotations.NotNull;
 
 public final class ModernItemStackSerializer implements JsonSerializer<ItemStack>, JsonDeserializer<ItemStack> {
     private static final String NAME = "name";
@@ -88,13 +90,56 @@ public final class ModernItemStackSerializer implements JsonSerializer<ItemStack
                 )
             );
 
+        Optional.ofNullable(object.get(ENCHANTMENTS))
+            .ifPresent(
+                enchantments -> itemStack.addEnchantments(
+                    context.deserialize(
+                        enchantments,
+                        new TypeToken<HashMap<Enchantment, Integer>>() {}.getType()
+                    )
+                )
+            );
+
         itemStack.setItemMeta(meta);
 
         return itemStack;
     }
 
     @Override
-    public JsonElement serialize(ItemStack src, Type typeOfSrc, JsonSerializationContext context) {
-        return null;
+    public JsonElement serialize(
+            final ItemStack src,
+            final Type typeOfSrc,
+            final JsonSerializationContext context
+    ) {
+        final JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty(MATERIAL, src.getType().name());
+        jsonObject.addProperty(AMOUNT, src.getAmount());
+
+        final ItemMeta meta = src.getItemMeta();
+
+        if (meta != null) {
+            jsonObject.addProperty(NAME, meta.getDisplayName());
+            if (meta instanceof Damageable) {
+                jsonObject.addProperty(DURABILITY, ((Damageable) meta).getDamage());
+            }
+
+            final List<String> lore = meta.getLore();
+            if (lore != null && !lore.isEmpty()) {
+                jsonObject.add(LORE, context.serialize(lore));
+            }
+        }
+
+        if (!src.getEnchantments().isEmpty()) {
+            jsonObject.add(
+                ENCHANTMENTS,
+                context.serialize(
+                    src.getEnchantments(),
+                    new TypeToken<HashMap<Enchantment, Integer>>() {}.getType()
+                )
+            );
+        }
+
+        return jsonObject;
     }
 }
